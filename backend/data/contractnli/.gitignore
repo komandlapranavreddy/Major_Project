@@ -1,0 +1,7 @@
+# Downloaded dataset files — do not commit large JSON blobs
+train.json
+dev.json
+test.json
+
+# HuggingFace datasets cache
+.cache/
