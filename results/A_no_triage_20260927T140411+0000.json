@@ -1,0 +1,521 @@
+{
+  "config": "A_no_triage",
+  "threshold": null,
+  "checkpoint_path": null,
+  "llm_provider": "groq",
+  "paper_grade": false,
+  "repeats": 1,
+  "n_documents": 2,
+  "n_pairs": 34,
+  "started_at": "2026-09-27T13:58:41+00:00",
+  "finished_at": "2026-09-27T14:04:11+00:00",
+  "host": "Windows AMD64 py3.11.9",
+  "classification": {
+    "accuracy": 0.7647058823529411,
+    "macro_precision": 0.6759259259259259,
+    "macro_recall": 0.7242424242424242,
+    "macro_f1": 0.6770955165692008,
+    "per_class": [
+      {
+        "label": "Contradiction",
+        "precision": 0.5,
+        "recall": 0.4,
+        "f1": 0.4444444444444444,
+        "support": 5
+      },
+      {
+        "label": "Entailment",
+        "precision": 0.9444444444444444,
+        "recall": 0.7727272727272727,
+        "f1": 0.85,
+        "support": 22
+      },
+      {
+        "label": "NotMentioned",
+        "precision": 0.5833333333333334,
+        "recall": 1.0,
+        "f1": 0.7368421052631579,
+        "support": 7
+      }
+    ]
+  },
+  "efficiency": {
+    "no_llm_rate": 0.0,
+    "escalation_rate": 1.0,
+    "llm_calls": 34,
+    "latency_overall": {
+      "n": 34,
+      "mean_s": 9.293340767647297,
+      "sd_s": 4.662374854966021,
+      "p50_s": 8.936130749993026,
+      "p95_s": 16.606496079996575,
+      "min_s": 1.8911297000013292,
+      "max_s": 23.11497289998806
+    },
+    "latency_by_engine": {
+      "llm": {
+        "n": 34,
+        "mean_s": 9.293340767647297,
+        "sd_s": 4.662374854966021,
+        "p50_s": 8.936130749993026,
+        "p95_s": 16.606496079996575,
+        "min_s": 1.8911297000013292,
+        "max_s": 23.11497289998806
+      }
+    },
+    "resource": {
+      "available": true,
+      "peak_rss_mb": 639.6,
+      "mean_cpu_percent": 38.1,
+      "note": ""
+    }
+  },
+  "calibration": null,
+  "integrity": {
+    "unstable_pairs": 0
+  },
+  "rows": [
+    {
+      "doc_id": 1,
+      "hyp_id": "nda-11",
+      "predicted": "NotMentioned",
+      "gold": "NotMentioned",
+      "source_engine": "llm",
+      "triage_label": null,
+      "triage_confidence": null,
+      "latencies_s": [
+        5.443003899999894
+      ],
+      "unstable": false
+    },
+    {
+      "doc_id": 1,
+      "hyp_id": "nda-16",
+      "predicted": "Entailment",
+      "gold": "Entailment",
+      "source_engine": "llm",
+      "triage_label": null,
+      "triage_confidence": null,
+      "latencies_s": [
+        2.3116303000133485
+      ],
+      "unstable": false
+    },
+    {
+      "doc_id": 1,
+      "hyp_id": "nda-15",
+      "predicted": "Contradiction",
+      "gold": "Entailment",
+      "source_engine": "llm",
+      "triage_label": null,
+      "triage_confidence": null,
+      "latencies_s": [
+        2.5148566999996547
+      ],
+      "unstable": false
+    },
+    {
+      "doc_id": 1,
+      "hyp_id": "nda-10",
+      "predicted": "NotMentioned",
+      "gold": "NotMentioned",
+      "source_engine": "llm",
+      "triage_label": null,
+      "triage_confidence": null,
+      "latencies_s": [
+        1.8911297000013292
+      ],
+      "unstable": false
+    },
+    {
+      "doc_id": 1,
+      "hyp_id": "nda-2",
+      "predicted": "Contradiction",
+      "gold": "Contradiction",
+      "source_engine": "llm",
+      "triage_label": null,
+      "triage_confidence": null,
+      "latencies_s": [
+        2.4250417000148445
+      ],
+      "unstable": false
+    },
+    {
+      "doc_id": 1,
+      "hyp_id": "nda-1",
+      "predicted": "NotMentioned",
+      "gold": "Contradiction",
+      "source_engine": "llm",
+      "triage_label": null,
+      "triage_confidence": null,
+      "latencies_s": [
+        10.780320299993036
+      ],
+      "unstable": false
+    },
+    {
+      "doc_id": 1,
+      "hyp_id": "nda-19",
+      "predicted": "Entailment",
+      "gold": "Entailment",
+      "source_engine": "llm",
+      "triage_label": null,
+      "triage_confidence": null,
+      "latencies_s": [
+        7.5047764999908395
+      ],
+      "unstable": false
+    },
+    {
+      "doc_id": 1,
+      "hyp_id": "nda-12",
+      "predicted": "NotMentioned",
+      "gold": "Entailment",
+      "source_engine": "llm",
+      "triage_label": null,
+      "triage_confidence": null,
+      "latencies_s": [
+        8.484187599999132
+      ],
+      "unstable": false
+    },
+    {
+      "doc_id": 1,
+      "hyp_id": "nda-20",
+      "predicted": "Entailment",
+      "gold": "Entailment",
+      "source_engine": "llm",
+      "triage_label": null,
+      "triage_confidence": null,
+      "latencies_s": [
+        9.697641600010684
+      ],
+      "unstable": false
+    },
+    {
+      "doc_id": 1,
+      "hyp_id": "nda-3",
+      "predicted": "NotMentioned",
+      "gold": "NotMentioned",
+      "source_engine": "llm",
+      "triage_label": null,
+      "triage_confidence": null,
+      "latencies_s": [
+        11.132247300003655
+      ],
+      "unstable": false
+    },
+    {
+      "doc_id": 1,
+      "hyp_id": "nda-18",
+      "predicted": "NotMentioned",
+      "gold": "NotMentioned",
+      "source_engine": "llm",
+      "triage_label": null,
+      "triage_confidence": null,
+      "latencies_s": [
+        8.027611600002274
+      ],
+      "unstable": false
+    },
+    {
+      "doc_id": 1,
+      "hyp_id": "nda-7",
+      "predicted": "Contradiction",
+      "gold": "Entailment",
+      "source_engine": "llm",
+      "triage_label": null,
+      "triage_confidence": null,
+      "latencies_s": [
+        16.116269699996337
+      ],
+      "unstable": false
+    },
+    {
+      "doc_id": 1,
+      "hyp_id": "nda-17",
+      "predicted": "Entailment",
+      "gold": "Entailment",
+      "source_engine": "llm",
+      "triage_label": null,
+      "triage_confidence": null,
+      "latencies_s": [
+        8.887950400006957
+      ],
+      "unstable": false
+    },
+    {
+      "doc_id": 1,
+      "hyp_id": "nda-8",
+      "predicted": "Entailment",
+      "gold": "Entailment",
+      "source_engine": "llm",
+      "triage_label": null,
+      "triage_confidence": null,
+      "latencies_s": [
+        11.995415900018997
+      ],
+      "unstable": false
+    },
+    {
+      "doc_id": 1,
+      "hyp_id": "nda-13",
+      "predicted": "NotMentioned",
+      "gold": "Entailment",
+      "source_engine": "llm",
+      "triage_label": null,
+      "triage_confidence": null,
+      "latencies_s": [
+        9.985298700019484
+      ],
+      "unstable": false
+    },
+    {
+      "doc_id": 1,
+      "hyp_id": "nda-5",
+      "predicted": "Entailment",
+      "gold": "Entailment",
+      "source_engine": "llm",
+      "triage_label": null,
+      "triage_confidence": null,
+      "latencies_s": [
+        7.184735799994087
+      ],
+      "unstable": false
+    },
+    {
+      "doc_id": 1,
+      "hyp_id": "nda-4",
+      "predicted": "Entailment",
+      "gold": "Entailment",
+      "source_engine": "llm",
+      "triage_label": null,
+      "triage_confidence": null,
+      "latencies_s": [
+        14.234284900012426
+      ],
+      "unstable": false
+    },
+    {
+      "doc_id": 2,
+      "hyp_id": "nda-11",
+      "predicted": "Entailment",
+      "gold": "Entailment",
+      "source_engine": "llm",
+      "triage_label": null,
+      "triage_confidence": null,
+      "latencies_s": [
+        17.010795300011523
+      ],
+      "unstable": false
+    },
+    {
+      "doc_id": 2,
+      "hyp_id": "nda-16",
+      "predicted": "Entailment",
+      "gold": "Entailment",
+      "source_engine": "llm",
+      "triage_label": null,
+      "triage_confidence": null,
+      "latencies_s": [
+        7.065908099990338
+      ],
+      "unstable": false
+    },
+    {
+      "doc_id": 2,
+      "hyp_id": "nda-15",
+      "predicted": "Entailment",
+      "gold": "Entailment",
+      "source_engine": "llm",
+      "triage_label": null,
+      "triage_confidence": null,
+      "latencies_s": [
+        8.006703499995638
+      ],
+      "unstable": false
+    },
+    {
+      "doc_id": 2,
+      "hyp_id": "nda-10",
+      "predicted": "NotMentioned",
+      "gold": "NotMentioned",
+      "source_engine": "llm",
+      "triage_label": null,
+      "triage_confidence": null,
+      "latencies_s": [
+        6.719032799999695
+      ],
+      "unstable": false
+    },
+    {
+      "doc_id": 2,
+      "hyp_id": "nda-2",
+      "predicted": "Contradiction",
+      "gold": "Contradiction",
+      "source_engine": "llm",
+      "triage_label": null,
+      "triage_confidence": null,
+      "latencies_s": [
+        8.984311099979095
+      ],
+      "unstable": false
+    },
+    {
+      "doc_id": 2,
+      "hyp_id": "nda-1",
+      "predicted": "NotMentioned",
+      "gold": "Contradiction",
+      "source_engine": "llm",
+      "triage_label": null,
+      "triage_confidence": null,
+      "latencies_s": [
+        7.844977700005984
+      ],
+      "unstable": false
+    },
+    {
+      "doc_id": 2,
+      "hyp_id": "nda-19",
+      "predicted": "Entailment",
+      "gold": "Entailment",
+      "source_engine": "llm",
+      "triage_label": null,
+      "triage_confidence": null,
+      "latencies_s": [
+        9.187976199988043
+      ],
+      "unstable": false
+    },
+    {
+      "doc_id": 2,
+      "hyp_id": "nda-12",
+      "predicted": "Entailment",
+      "gold": "Entailment",
+      "source_engine": "llm",
+      "triage_label": null,
+      "triage_confidence": null,
+      "latencies_s": [
+        5.546120999992127
+      ],
+      "unstable": false
+    },
+    {
+      "doc_id": 2,
+      "hyp_id": "nda-20",
+      "predicted": "Entailment",
+      "gold": "Entailment",
+      "source_engine": "llm",
+      "triage_label": null,
+      "triage_confidence": null,
+      "latencies_s": [
+        23.11497289998806
+      ],
+      "unstable": false
+    },
+    {
+      "doc_id": 2,
+      "hyp_id": "nda-3",
+      "predicted": "Entailment",
+      "gold": "Entailment",
+      "source_engine": "llm",
+      "triage_label": null,
+      "triage_confidence": null,
+      "latencies_s": [
+        12.733079400000861
+      ],
+      "unstable": false
+    },
+    {
+      "doc_id": 2,
+      "hyp_id": "nda-18",
+      "predicted": "NotMentioned",
+      "gold": "NotMentioned",
+      "source_engine": "llm",
+      "triage_label": null,
+      "triage_confidence": null,
+      "latencies_s": [
+        10.882821200008038
+      ],
+      "unstable": false
+    },
+    {
+      "doc_id": 2,
+      "hyp_id": "nda-7",
+      "predicted": "Entailment",
+      "gold": "Contradiction",
+      "source_engine": "llm",
+      "triage_label": null,
+      "triage_confidence": null,
+      "latencies_s": [
+        13.734593799978029
+      ],
+      "unstable": false
+    },
+    {
+      "doc_id": 2,
+      "hyp_id": "nda-17",
+      "predicted": "Entailment",
+      "gold": "Entailment",
+      "source_engine": "llm",
+      "triage_label": null,
+      "triage_confidence": null,
+      "latencies_s": [
+        11.553827300027478
+      ],
+      "unstable": false
+    },
+    {
+      "doc_id": 2,
+      "hyp_id": "nda-8",
+      "predicted": "Entailment",
+      "gold": "Entailment",
+      "source_engine": "llm",
+      "triage_label": null,
+      "triage_confidence": null,
+      "latencies_s": [
+        5.442505699989852
+      ],
+      "unstable": false
+    },
+    {
+      "doc_id": 2,
+      "hyp_id": "nda-13",
+      "predicted": "NotMentioned",
+      "gold": "Entailment",
+      "source_engine": "llm",
+      "triage_label": null,
+      "triage_confidence": null,
+      "latencies_s": [
+        9.021027100010542
+      ],
+      "unstable": false
+    },
+    {
+      "doc_id": 2,
+      "hyp_id": "nda-5",
+      "predicted": "Entailment",
+      "gold": "Entailment",
+      "source_engine": "llm",
+      "triage_label": null,
+      "triage_confidence": null,
+      "latencies_s": [
+        16.38879649998853
+      ],
+      "unstable": false
+    },
+    {
+      "doc_id": 2,
+      "hyp_id": "nda-4",
+      "predicted": "NotMentioned",
+      "gold": "NotMentioned",
+      "source_engine": "llm",
+      "triage_label": null,
+      "triage_confidence": null,
+      "latencies_s": [
+        4.119733899977291
+      ],
+      "unstable": false
+    }
+  ]
+}

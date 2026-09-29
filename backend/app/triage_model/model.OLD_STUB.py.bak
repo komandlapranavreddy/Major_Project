@@ -1,0 +1,109 @@
+"""
+triage_model/model.py
+──────────────────────
+Wraps a fine-tuned sequence-classification checkpoint (DeBERTa-v3-small or
+LegalBERT-base) for the NLI triage task.
+
+Public API (matches architecture123.md):
+  class TriageModel
+    .load(checkpoint_path: str) -> None
+    .forward(premise: str, hypothesis: str) -> torch.Tensor
+
+Label order is fixed and must match the id2label mapping used at training
+time in triage_model/train.py — see LABELS below. If the teammate's
+training script uses a different order, update LABELS here to match rather
+than reordering at inference time.
+"""
+
+from __future__ import annotations
+
+import os
+
+# Fixed label order — must match the trained checkpoint's id2label mapping.
+LABELS: tuple[str, str, str] = ("Entailment", "Contradiction", "NotMentioned")
+
+
+class TriageModel:
+    """
+    Thin wrapper around a HuggingFace AutoModelForSequenceClassification
+    checkpoint, fine-tuned on ContractNLI premise/hypothesis pairs.
+
+    Usage::
+
+        model = TriageModel()
+        model.load("app/triage_model/checkpoints/current")
+        logits = model.forward(clause_text, hypothesis_text)
+    """
+
+    def __init__(self) -> None:
+        self._model = None
+        self._tokenizer = None
+        self._checkpoint_path: str = ""
+
+    def load(self, checkpoint_path: str) -> None:
+        """
+        Load a fine-tuned checkpoint directory (HF `save_pretrained` layout).
+
+        Raises:
+            FileNotFoundError: if checkpoint_path does not exist.
+            ImportError: if torch/transformers are not installed.
+        """
+        if not os.path.isdir(checkpoint_path):
+            raise FileNotFoundError(
+                f"Triage checkpoint not found at '{checkpoint_path}'. "
+                "Train it first with triage_model/train.py, or call "
+                "triage_model.infer.predict() instead, which falls back to "
+                "a stub heuristic when no checkpoint exists yet."
+            )
+
+        try:
+            import torch  # noqa: F401
+            from transformers import AutoModelForSequenceClassification, AutoTokenizer
+        except ImportError as exc:
+            raise ImportError(
+                "torch and transformers are required for TriageModel.\n"
+                "Run: pip install torch transformers"
+            ) from exc
+
+        self._tokenizer = AutoTokenizer.from_pretrained(checkpoint_path)
+        self._model = AutoModelForSequenceClassification.from_pretrained(checkpoint_path)
+        self._model.eval()
+        self._checkpoint_path = checkpoint_path
+
+    def forward(self, premise: str, hypothesis: str):
+        """
+        Run one (premise, hypothesis) pair through the model.
+
+        Args:
+            premise:    The contract clause text.
+            hypothesis: The NDA hypothesis text.
+
+        Returns:
+            torch.Tensor of shape (3,) — raw logits over LABELS, in that order.
+
+        Raises:
+            RuntimeError: if load() has not been called.
+        """
+        if self._model is None or self._tokenizer is None:
+            raise RuntimeError("TriageModel.load() must be called before forward().")
+
+        import torch
+
+        inputs = self._tokenizer(
+            premise,
+            hypothesis,
+            truncation=True,
+            max_length=512,
+            return_tensors="pt",
+        )
+        with torch.no_grad():
+            logits = self._model(**inputs).logits[0]
+        return logits
+
+    @property
+    def is_loaded(self) -> bool:
+        return self._model is not None
+
+    def __repr__(self) -> str:
+        status = f"loaded({self._checkpoint_path})" if self.is_loaded else "unloaded"
+        return f"TriageModel({status})"

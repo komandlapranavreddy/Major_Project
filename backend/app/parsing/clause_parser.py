@@ -20,6 +20,26 @@ import re
 from dataclasses import dataclass, field
 from typing import Optional
 
+try:
+    # This file previously had zero `backend.app.*` dependencies and was a
+    # standalone leaf module. Falling back to a plain logger (rather than
+    # letting this import fail) preserves that if it's ever imported from a
+    # context without the repo root on sys.path.
+    from backend.app.logging_config import get_logger, log_exception, log_step
+except ImportError:
+    import logging as _logging
+
+    def get_logger(name):
+        return _logging.getLogger(name)
+
+    def log_step(logger, step, **context):
+        logger.info("STEP %s | %s", step, context)
+
+    def log_exception(logger, msg, **context):
+        logger.error("FAILED %s | %s", msg, context, exc_info=True)
+
+logger = get_logger(__name__)
+
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Data classes
@@ -215,7 +235,11 @@ def segment_clauses(pages: list[PageBlock]) -> list[Clause]:
         Ordered list of Clause objects.
     """
     if not pages:
+        logger.warning("segment_clauses() called with 0 pages - returning [].")
         return []
+
+    total_chars = sum(len(p.text) for p in pages)
+    log_step(logger, "parse.start", n_pages=len(pages), total_chars=total_chars)
 
     # Build doc_id prefix from first page (used for clause IDs).
     # If page_num is meaningful we include it; here we concatenate all pages.
@@ -240,8 +264,13 @@ def segment_clauses(pages: list[PageBlock]) -> list[Clause]:
                 pnum = p
         return pnum
 
-    raw_chunks = _split_into_raw_chunks(full_text)
-    merged_chunks = _merge_short_fragments(raw_chunks)
+    try:
+        raw_chunks = _split_into_raw_chunks(full_text)
+        merged_chunks = _merge_short_fragments(raw_chunks)
+    except Exception:
+        log_exception(logger, "clause segmentation crashed", n_pages=len(pages),
+                      total_chars=total_chars)
+        raise
 
     clauses: list[Clause] = []
     char_cursor = 0
@@ -264,5 +293,19 @@ def segment_clauses(pages: list[PageBlock]) -> list[Clause]:
             section_heading=heading,
         )
         clauses.append(clause)
+
+    if not clauses:
+        # Real failure mode: a scanned PDF with no text layer produces empty
+        # pages, which silently yields zero clauses downstream (empty index,
+        # "NotMentioned" for every hypothesis) with no error anywhere — this
+        # is the one place that can be diagnosed and logged.
+        logger.warning(
+            "segment_clauses() produced 0 clauses from %d page(s), %d total "
+            "chars - likely a scanned/image-only PDF with no extractable "
+            "text layer.", len(pages), total_chars,
+        )
+    else:
+        log_step(logger, "parse.done", n_clauses=len(clauses),
+                 raw_chunks=len(raw_chunks), merged_chunks=len(merged_chunks))
 
     return clauses

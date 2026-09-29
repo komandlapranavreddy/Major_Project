@@ -21,6 +21,27 @@ from typing import TYPE_CHECKING, Optional
 
 import numpy as np
 
+try:
+    # This file previously had only a TYPE_CHECKING-guarded backend.app
+    # reference (never executed at runtime) — no real dependency. Falling
+    # back to a plain logger (rather than letting this import fail)
+    # preserves that if it's ever imported from a context without the repo
+    # root on sys.path.
+    from backend.app.logging_config import get_logger, log_exception, log_step
+except ImportError:
+    import logging as _logging
+
+    def get_logger(name):
+        return _logging.getLogger(name)
+
+    def log_step(logger, step, **context):
+        logger.info("STEP %s | %s", step, context)
+
+    def log_exception(logger, msg, **context):
+        logger.error("FAILED %s | %s", msg, context, exc_info=True)
+
+logger = get_logger(__name__)
+
 if TYPE_CHECKING:
     from chromadb import Collection
     from backend.app.parsing.clause_parser import Clause
@@ -41,15 +62,18 @@ def _get_client():
         try:
             import chromadb  # type: ignore
         except ImportError:
+            logger.error("chromadb is not installed - cannot create client.")
             raise ImportError(
                 "chromadb is not installed.\nRun: pip install chromadb"
             )
         # EphemeralClient is the non-deprecated in-memory client (chromadb >= 0.4)
         try:
             _client = chromadb.EphemeralClient()
+            logger.debug("Created ephemeral (in-memory) ChromaDB client.")
         except AttributeError:
             # Fallback for older chromadb versions
             _client = chromadb.Client()  # type: ignore
+            logger.debug("chromadb.EphemeralClient unavailable - used legacy Client().")
     return _client
 
 
@@ -62,8 +86,15 @@ def get_persistent_client(path: str):
     try:
         import chromadb  # type: ignore
     except ImportError:
+        logger.error("chromadb is not installed - cannot create persistent client.")
         raise ImportError("chromadb is not installed.\nRun: pip install chromadb")
-    return chromadb.PersistentClient(path=path)
+    try:
+        client = chromadb.PersistentClient(path=path)
+    except Exception:
+        log_exception(logger, "PersistentClient creation failed", path=path)
+        raise
+    logger.info("Opened persistent ChromaDB client at %s", path)
+    return client
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -139,17 +170,23 @@ def gap_filter(
         kept    = [0.178, 0.186, 0.202, 0.205]   # 0.279 > ceiling → stop
     """
     if not candidates:
+        logger.debug("gap_filter() called with 0 candidates.")
         return []
 
     kept       = [candidates[0]]
     best_score = candidates[0][1]   # fixed anchor — never updates
+    ceiling    = best_score * (1.0 + gap_threshold)
 
     for clause, score in candidates[1:]:
-        if score <= best_score * (1.0 + gap_threshold):
+        if score <= ceiling:
             kept.append((clause, score))
         else:
             break  # outside the relevance band of Rank-1 — stop
 
+    logger.debug(
+        "gap_filter: kept %d/%d candidates (rank1=%.4f, ceiling=%.4f)",
+        len(kept), len(candidates), best_score, ceiling,
+    )
     return kept
 
 
@@ -170,6 +207,10 @@ def add_clauses(
         ValueError: if lengths don't match.
     """
     if len(clauses) != len(embeddings):
+        logger.error(
+            "add_clauses() length mismatch: %d clauses vs %d embeddings",
+            len(clauses), len(embeddings),
+        )
         raise ValueError(
             f"clauses ({len(clauses)}) and embeddings ({len(embeddings)}) "
             "must have the same length."
@@ -187,12 +228,20 @@ def add_clauses(
     ]
     embedding_list = embeddings.tolist()
 
-    collection.upsert(
-        ids=ids,
-        documents=documents,
-        embeddings=embedding_list,
-        metadatas=metadatas,
-    )
+    try:
+        collection.upsert(
+            ids=ids,
+            documents=documents,
+            embeddings=embedding_list,
+            metadatas=metadatas,
+        )
+    except Exception:
+        log_exception(logger, "collection.upsert() failed",
+                      collection=getattr(collection, "name", "?"),
+                      n_clauses=len(clauses))
+        raise
+    logger.debug("add_clauses: upserted %d clauses into collection=%s",
+                len(clauses), getattr(collection, "name", "?"))
 
 
 def query(
@@ -231,16 +280,27 @@ def query(
     elif embedder is not None:
         vec = embedder.embed([query_text])[0]
     else:
+        logger.error("query() called with neither 'embedder' nor 'query_embedding'.")
         raise ValueError(
             "Provide either 'embedder' or 'query_embedding' to query()."
         )
 
     # ── ChromaDB query ──────────────────────────────────────────────────────
-    results = collection.query(
-        query_embeddings=[vec.tolist()],
-        n_results=min(k, collection.count()),
-        include=["documents", "metadatas", "distances"],
-    )
+    n_results = min(k, collection.count())
+    try:
+        results = collection.query(
+            query_embeddings=[vec.tolist()],
+            n_results=n_results,
+            include=["documents", "metadatas", "distances"],
+        )
+    except Exception:
+        log_exception(logger, "collection.query() failed",
+                      collection=getattr(collection, "name", "?"),
+                      k=k, n_results=n_results, query_text=query_text[:80])
+        raise
+    logger.debug("query: collection=%s k=%d -> %d results (top_dist=%s)",
+                getattr(collection, "name", "?"), k, n_results,
+                results["distances"][0][0] if results["distances"][0] else "n/a")
 
     # ── Reconstruct Clause objects ────────────────────────────────────────────
     # Import here to avoid circular imports at module level.

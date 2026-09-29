@@ -1,0 +1,569 @@
+{
+  "config": "B_pretrained_triage",
+  "threshold": 0.95,
+  "checkpoint_path": "pretrained:cross-encoder/nli-deberta-v3-base (no ContractNLI fine-tuning)",
+  "llm_provider": "groq",
+  "paper_grade": false,
+  "repeats": 1,
+  "n_documents": 2,
+  "n_pairs": 34,
+  "started_at": "2026-09-27T14:04:19+00:00",
+  "finished_at": "2026-09-27T14:05:47+00:00",
+  "host": "Windows AMD64 py3.11.9",
+  "classification": {
+    "accuracy": 0.5294117647058824,
+    "macro_precision": 0.5219298245614036,
+    "macro_recall": 0.519047619047619,
+    "macro_f1": 0.4501424501424502,
+    "per_class": [
+      {
+        "label": "Contradiction",
+        "precision": 0.25,
+        "recall": 0.2,
+        "f1": 0.2222222222222222,
+        "support": 5
+      },
+      {
+        "label": "Entailment",
+        "precision": 1.0,
+        "recall": 0.5,
+        "f1": 0.6666666666666666,
+        "support": 22
+      },
+      {
+        "label": "NotMentioned",
+        "precision": 0.3157894736842105,
+        "recall": 0.8571428571428571,
+        "f1": 0.46153846153846156,
+        "support": 7
+      }
+    ]
+  },
+  "efficiency": {
+    "no_llm_rate": 0.7941176470588236,
+    "escalation_rate": 0.20588235294117646,
+    "llm_calls": 7,
+    "latency_overall": {
+      "n": 34,
+      "mean_s": 2.2613915470591404,
+      "sd_s": 3.859720068018353,
+      "p50_s": 0.7702496999991126,
+      "p95_s": 11.609025010008182,
+      "min_s": 0.37765950002358295,
+      "max_s": 16.691619499993976
+    },
+    "latency_by_engine": {
+      "classifier": {
+        "n": 27,
+        "mean_s": 0.75045085925915,
+        "sd_s": 0.29278490846568545,
+        "p50_s": 0.6974785999918822,
+        "p95_s": 1.2214627700101117,
+        "min_s": 0.37765950002358295,
+        "max_s": 1.2779299000103492
+      },
+      "llm": {
+        "n": 7,
+        "mean_s": 8.089305628573388,
+        "sd_s": 5.627243014717491,
+        "p50_s": 4.234703599999193,
+        "p95_s": 16.006035469999187,
+        "min_s": 3.4653814999910537,
+        "max_s": 16.691619499993976
+      }
+    },
+    "resource": {
+      "available": true,
+      "peak_rss_mb": 1214.2,
+      "mean_cpu_percent": 478.1,
+      "note": ""
+    }
+  },
+  "calibration": {
+    "ece": 0.5345875988988315,
+    "n_bins": 10,
+    "bin_confidences": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.6936521828174591,
+      0.7442451119422913,
+      0.8145833015441895,
+      0.9830981512864431
+    ],
+    "bin_accuracies": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      1.0,
+      1.0,
+      0.0,
+      0.43333333333333335
+    ],
+    "bin_counts": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      2,
+      1,
+      1,
+      30
+    ]
+  },
+  "integrity": {
+    "unstable_pairs": 0
+  },
+  "rows": [
+    {
+      "doc_id": 1,
+      "hyp_id": "nda-11",
+      "predicted": "NotMentioned",
+      "gold": "NotMentioned",
+      "source_engine": "llm",
+      "triage_label": "NotMentioned",
+      "triage_confidence": 0.6995648145675659,
+      "latencies_s": [
+        14.406339400011348
+      ],
+      "unstable": false
+    },
+    {
+      "doc_id": 1,
+      "hyp_id": "nda-16",
+      "predicted": "Entailment",
+      "gold": "Entailment",
+      "source_engine": "llm",
+      "triage_label": "NotMentioned",
+      "triage_confidence": 0.9055324196815491,
+      "latencies_s": [
+        4.035665700008394
+      ],
+      "unstable": false
+    },
+    {
+      "doc_id": 1,
+      "hyp_id": "nda-15",
+      "predicted": "Contradiction",
+      "gold": "Entailment",
+      "source_engine": "llm",
+      "triage_label": "Contradiction",
+      "triage_confidence": 0.9496191740036011,
+      "latencies_s": [
+        3.4653814999910537
+      ],
+      "unstable": false
+    },
+    {
+      "doc_id": 1,
+      "hyp_id": "nda-10",
+      "predicted": "NotMentioned",
+      "gold": "NotMentioned",
+      "source_engine": "classifier",
+      "triage_label": "NotMentioned",
+      "triage_confidence": 0.9941402077674866,
+      "latencies_s": [
+        0.9281594000058249
+      ],
+      "unstable": false
+    },
+    {
+      "doc_id": 1,
+      "hyp_id": "nda-2",
+      "predicted": "NotMentioned",
+      "gold": "Contradiction",
+      "source_engine": "classifier",
+      "triage_label": "NotMentioned",
+      "triage_confidence": 0.9902617335319519,
+      "latencies_s": [
+        1.027085400011856
+      ],
+      "unstable": false
+    },
+    {
+      "doc_id": 1,
+      "hyp_id": "nda-1",
+      "predicted": "NotMentioned",
+      "gold": "Contradiction",
+      "source_engine": "classifier",
+      "triage_label": "NotMentioned",
+      "triage_confidence": 0.9991768002510071,
+      "latencies_s": [
+        0.7983568999916315
+      ],
+      "unstable": false
+    },
+    {
+      "doc_id": 1,
+      "hyp_id": "nda-19",
+      "predicted": "NotMentioned",
+      "gold": "Entailment",
+      "source_engine": "classifier",
+      "triage_label": "NotMentioned",
+      "triage_confidence": 0.9631616473197937,
+      "latencies_s": [
+        0.5318277000042144
+      ],
+      "unstable": false
+    },
+    {
+      "doc_id": 1,
+      "hyp_id": "nda-12",
+      "predicted": "NotMentioned",
+      "gold": "Entailment",
+      "source_engine": "classifier",
+      "triage_label": "NotMentioned",
+      "triage_confidence": 0.9860243201255798,
+      "latencies_s": [
+        1.2358448000159115
+      ],
+      "unstable": false
+    },
+    {
+      "doc_id": 1,
+      "hyp_id": "nda-20",
+      "predicted": "Entailment",
+      "gold": "Entailment",
+      "source_engine": "llm",
+      "triage_label": "Entailment",
+      "triage_confidence": 0.7442451119422913,
+      "latencies_s": [
+        3.6886509000032675
+      ],
+      "unstable": false
+    },
+    {
+      "doc_id": 1,
+      "hyp_id": "nda-3",
+      "predicted": "NotMentioned",
+      "gold": "NotMentioned",
+      "source_engine": "classifier",
+      "triage_label": "NotMentioned",
+      "triage_confidence": 0.9985091090202332,
+      "latencies_s": [
+        0.6974785999918822
+      ],
+      "unstable": false
+    },
+    {
+      "doc_id": 1,
+      "hyp_id": "nda-18",
+      "predicted": "NotMentioned",
+      "gold": "NotMentioned",
+      "source_engine": "classifier",
+      "triage_label": "NotMentioned",
+      "triage_confidence": 0.9962701797485352,
+      "latencies_s": [
+        0.6348609999986365
+      ],
+      "unstable": false
+    },
+    {
+      "doc_id": 1,
+      "hyp_id": "nda-7",
+      "predicted": "Contradiction",
+      "gold": "Entailment",
+      "source_engine": "llm",
+      "triage_label": "Contradiction",
+      "triage_confidence": 0.8145833015441895,
+      "latencies_s": [
+        16.691619499993976
+      ],
+      "unstable": false
+    },
+    {
+      "doc_id": 1,
+      "hyp_id": "nda-17",
+      "predicted": "NotMentioned",
+      "gold": "Entailment",
+      "source_engine": "classifier",
+      "triage_label": "NotMentioned",
+      "triage_confidence": 0.9798515439033508,
+      "latencies_s": [
+        1.2779299000103492
+      ],
+      "unstable": false
+    },
+    {
+      "doc_id": 1,
+      "hyp_id": "nda-8",
+      "predicted": "NotMentioned",
+      "gold": "Entailment",
+      "source_engine": "classifier",
+      "triage_label": "NotMentioned",
+      "triage_confidence": 0.978851318359375,
+      "latencies_s": [
+        1.1768173000018578
+      ],
+      "unstable": false
+    },
+    {
+      "doc_id": 1,
+      "hyp_id": "nda-13",
+      "predicted": "NotMentioned",
+      "gold": "Entailment",
+      "source_engine": "classifier",
+      "triage_label": "NotMentioned",
+      "triage_confidence": 0.9601880311965942,
+      "latencies_s": [
+        1.1189174999890383
+      ],
+      "unstable": false
+    },
+    {
+      "doc_id": 1,
+      "hyp_id": "nda-5",
+      "predicted": "NotMentioned",
+      "gold": "Entailment",
+      "source_engine": "classifier",
+      "triage_label": "NotMentioned",
+      "triage_confidence": 0.9970682263374329,
+      "latencies_s": [
+        1.1879046999965794
+      ],
+      "unstable": false
+    },
+    {
+      "doc_id": 1,
+      "hyp_id": "nda-4",
+      "predicted": "Entailment",
+      "gold": "Entailment",
+      "source_engine": "classifier",
+      "triage_label": "Entailment",
+      "triage_confidence": 0.9916728138923645,
+      "latencies_s": [
+        1.1746205000090413
+      ],
+      "unstable": false
+    },
+    {
+      "doc_id": 2,
+      "hyp_id": "nda-11",
+      "predicted": "Entailment",
+      "gold": "Entailment",
+      "source_engine": "classifier",
+      "triage_label": "Entailment",
+      "triage_confidence": 0.9909606575965881,
+      "latencies_s": [
+        0.861812999995891
+      ],
+      "unstable": false
+    },
+    {
+      "doc_id": 2,
+      "hyp_id": "nda-16",
+      "predicted": "Entailment",
+      "gold": "Entailment",
+      "source_engine": "classifier",
+      "triage_label": "Entailment",
+      "triage_confidence": 0.9734472632408142,
+      "latencies_s": [
+        0.7356965999933891
+      ],
+      "unstable": false
+    },
+    {
+      "doc_id": 2,
+      "hyp_id": "nda-15",
+      "predicted": "Entailment",
+      "gold": "Entailment",
+      "source_engine": "llm",
+      "triage_label": "NotMentioned",
+      "triage_confidence": 0.9262515306472778,
+      "latencies_s": [
+        4.234703599999193
+      ],
+      "unstable": false
+    },
+    {
+      "doc_id": 2,
+      "hyp_id": "nda-10",
+      "predicted": "NotMentioned",
+      "gold": "NotMentioned",
+      "source_engine": "classifier",
+      "triage_label": "NotMentioned",
+      "triage_confidence": 0.9884130358695984,
+      "latencies_s": [
+        0.37765950002358295
+      ],
+      "unstable": false
+    },
+    {
+      "doc_id": 2,
+      "hyp_id": "nda-2",
+      "predicted": "Contradiction",
+      "gold": "Contradiction",
+      "source_engine": "classifier",
+      "triage_label": "Contradiction",
+      "triage_confidence": 0.9996597766876221,
+      "latencies_s": [
+        0.6473740999936126
+      ],
+      "unstable": false
+    },
+    {
+      "doc_id": 2,
+      "hyp_id": "nda-1",
+      "predicted": "NotMentioned",
+      "gold": "Contradiction",
+      "source_engine": "classifier",
+      "triage_label": "NotMentioned",
+      "triage_confidence": 0.999576985836029,
+      "latencies_s": [
+        0.4282983999873977
+      ],
+      "unstable": false
+    },
+    {
+      "doc_id": 2,
+      "hyp_id": "nda-19",
+      "predicted": "Entailment",
+      "gold": "Entailment",
+      "source_engine": "classifier",
+      "triage_label": "Entailment",
+      "triage_confidence": 0.974823534488678,
+      "latencies_s": [
+        0.44769390000146814
+      ],
+      "unstable": false
+    },
+    {
+      "doc_id": 2,
+      "hyp_id": "nda-12",
+      "predicted": "Entailment",
+      "gold": "Entailment",
+      "source_engine": "classifier",
+      "triage_label": "Entailment",
+      "triage_confidence": 0.9923276305198669,
+      "latencies_s": [
+        0.49711029999889433
+      ],
+      "unstable": false
+    },
+    {
+      "doc_id": 2,
+      "hyp_id": "nda-20",
+      "predicted": "Entailment",
+      "gold": "Entailment",
+      "source_engine": "classifier",
+      "triage_label": "Entailment",
+      "triage_confidence": 0.9817642569541931,
+      "latencies_s": [
+        0.7376876999915112
+      ],
+      "unstable": false
+    },
+    {
+      "doc_id": 2,
+      "hyp_id": "nda-3",
+      "predicted": "Entailment",
+      "gold": "Entailment",
+      "source_engine": "llm",
+      "triage_label": "Entailment",
+      "triage_confidence": 0.6877395510673523,
+      "latencies_s": [
+        10.10277880000649
+      ],
+      "unstable": false
+    },
+    {
+      "doc_id": 2,
+      "hyp_id": "nda-18",
+      "predicted": "Contradiction",
+      "gold": "NotMentioned",
+      "source_engine": "classifier",
+      "triage_label": "Contradiction",
+      "triage_confidence": 0.9953857064247131,
+      "latencies_s": [
+        0.670207199989818
+      ],
+      "unstable": false
+    },
+    {
+      "doc_id": 2,
+      "hyp_id": "nda-7",
+      "predicted": "NotMentioned",
+      "gold": "Contradiction",
+      "source_engine": "classifier",
+      "triage_label": "NotMentioned",
+      "triage_confidence": 0.997918426990509,
+      "latencies_s": [
+        0.5719348000129685
+      ],
+      "unstable": false
+    },
+    {
+      "doc_id": 2,
+      "hyp_id": "nda-17",
+      "predicted": "NotMentioned",
+      "gold": "Entailment",
+      "source_engine": "classifier",
+      "triage_label": "NotMentioned",
+      "triage_confidence": 0.9991162419319153,
+      "latencies_s": [
+        0.4674003999971319
+      ],
+      "unstable": false
+    },
+    {
+      "doc_id": 2,
+      "hyp_id": "nda-8",
+      "predicted": "Entailment",
+      "gold": "Entailment",
+      "source_engine": "classifier",
+      "triage_label": "Entailment",
+      "triage_confidence": 0.998017430305481,
+      "latencies_s": [
+        0.7421425000065938
+      ],
+      "unstable": false
+    },
+    {
+      "doc_id": 2,
+      "hyp_id": "nda-13",
+      "predicted": "NotMentioned",
+      "gold": "Entailment",
+      "source_engine": "classifier",
+      "triage_label": "NotMentioned",
+      "triage_confidence": 0.991114616394043,
+      "latencies_s": [
+        0.43970449999324046
+      ],
+      "unstable": false
+    },
+    {
+      "doc_id": 2,
+      "hyp_id": "nda-5",
+      "predicted": "NotMentioned",
+      "gold": "Entailment",
+      "source_engine": "classifier",
+      "triage_label": "NotMentioned",
+      "triage_confidence": 0.9988756775856018,
+      "latencies_s": [
+        0.4494743999966886
+      ],
+      "unstable": false
+    },
+    {
+      "doc_id": 2,
+      "hyp_id": "nda-4",
+      "predicted": "NotMentioned",
+      "gold": "NotMentioned",
+      "source_engine": "classifier",
+      "triage_label": "NotMentioned",
+      "triage_confidence": 0.9949642419815063,
+      "latencies_s": [
+        0.3981721999880392
+      ],
+      "unstable": false
+    }
+  ]
+}

@@ -18,12 +18,29 @@ Public API (matches architecture123.md):
 
 from __future__ import annotations
 
+import os
+
 import json
 import re
 from dataclasses import dataclass, field
+from pathlib import Path
 from typing import Optional
 
+from dotenv import load_dotenv
+
+# Load .env directly rather than relying on groq_client's import as a side
+# effect: generate() checks os.getenv("LLM_PROVIDER") BEFORE it decides
+# whether to import groq_client, so without this, standalone scripts
+# (test_pipeline.py, experiment_runner.py) would silently see "unset" and
+# fall back to Ollama even with LLM_PROVIDER=groq in .env — only working by
+# accident when something else (e.g. main.py -> rag_engine -> groq_client)
+# happened to import groq_client first.
+load_dotenv(dotenv_path=Path(__file__).resolve().parent.parent.parent / ".env")
+
 from backend.app.llm.prompts import build_reasoning_prompt, VALID_LABELS
+from backend.app.logging_config import get_logger, log_exception, log_step
+
+logger = get_logger(__name__)
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -77,19 +94,40 @@ class OllamaClient:
 
     def generate(self, prompt: str, model: Optional[str] = None) -> str:
         """
-        Send a prompt to Ollama and return the full response text.
+        Send a prompt to the LLM and return the full response text.
 
-        Args:
-            prompt: The prompt string.
-            model:  Override the instance default model.
-
-        Returns:
-            Raw response string from the LLM.
-
-        Raises:
-            OllamaConnectionError: if the server is not reachable.
-            RuntimeError:          on non-200 HTTP responses.
+        Provider is EXPLICIT, not inferred from whichever API keys happen to
+        be sitting in .env: set LLM_PROVIDER=groq to route through Groq
+        (fast, but NOT local/private — fine for quick dev iteration, NOT
+        valid for the privacy-preserving evaluation numbers this class
+        exists to produce). Anything else (including unset) uses local
+        Ollama. This is deliberately the opposite default of rag_engine.py's
+        demo-app behavior: that file exists to be fast, this one exists to
+        be the ground-truth local baseline, so it must never silently swap
+        providers just because a Groq key is present.
         """
+        if os.getenv("LLM_PROVIDER", "ollama").strip().lower() == "groq":
+            from backend.app.llm.groq_client import groq_client
+            if not groq_client.has_keys:
+                logger.error("LLM_PROVIDER=groq but no Groq keys configured in .env")
+                raise RuntimeError(
+                    "LLM_PROVIDER=groq but no Groq keys are configured in .env"
+                )
+            logger.warning(
+                "LLM_PROVIDER=groq -> routing to Groq (NOT local/private - "
+                "do not use these results as final evaluation numbers). "
+                "prompt_len=%d", len(prompt),
+            )
+            try:
+                return groq_client.chat(
+                    messages=[{"role": "user", "content": prompt}],
+                    response_format={"type": "json_object"},
+                    temperature=0.0
+                )
+            except Exception:
+                log_exception(logger, "Groq chat() call failed", prompt_len=len(prompt))
+                raise
+
         import urllib.request
         import urllib.error
         import time
@@ -117,10 +155,14 @@ class OllamaClient:
             method="POST",
         )
 
+        log_step(logger, "ollama.generate.start", model=target_model,
+                 prompt_len=len(prompt), base_url=self.base_url)
         try:
             with urllib.request.urlopen(req, timeout=self.timeout) as resp:
                 body = resp.read().decode("utf-8")
         except urllib.error.URLError as exc:
+            log_exception(logger, "Ollama unreachable", base_url=self.base_url,
+                          model=target_model)
             raise OllamaConnectionError(
                 f"Cannot reach Ollama at {self.base_url}. "
                 f"Is 'ollama serve' running?\nOriginal error: {exc}"
@@ -130,15 +172,18 @@ class OllamaClient:
             # If the retry also times out, raise OllamaConnectionError so the
             # caller's existing guard records this hypothesis as an error/skip
             # rather than crashing the whole script.
-            print(
-                f"        [TIMEOUT] {type(exc).__name__} on first attempt. "
-                f"Retrying in 5 s ..."
+            logger.warning(
+                "Ollama %s on first attempt (model=%s, timeout=%ds). Retrying in 5s...",
+                type(exc).__name__, target_model, self.timeout,
             )
             time.sleep(5)
             try:
                 with urllib.request.urlopen(req, timeout=self.timeout) as resp:
                     body = resp.read().decode("utf-8")
             except (TimeoutError, OSError) as retry_exc:
+                log_exception(logger, "Ollama timed out on retry too",
+                              base_url=self.base_url, model=target_model,
+                              timeout=self.timeout, first_error=repr(exc))
                 raise OllamaConnectionError(
                     f"Ollama timed out after {self.timeout}s (retry also failed). "
                     f"Consider reducing clause count or increasing timeout.\n"
@@ -146,7 +191,10 @@ class OllamaClient:
                 ) from retry_exc
 
         data = json.loads(body)
-        return data.get("response", "")
+        response_text = data.get("response", "")
+        log_step(logger, "ollama.generate.done", model=target_model,
+                 response_len=len(response_text))
+        return response_text
 
     # ------------------------------------------------------------------
     # High-level: structured NLI query
@@ -178,10 +226,14 @@ class OllamaClient:
         Raises:
             OllamaConnectionError: if the server is not reachable.
         """
+        log_step(logger, "query_llm.start", n_clauses=len(clauses),
+                 hypothesis=hypothesis[:80], triage_label=triage_label or "(none)")
         prompt = build_reasoning_prompt(clauses, hypothesis, triage_label)
         raw    = self.generate(prompt)
-
-        return _parse_llm_response(raw)
+        result = _parse_llm_response(raw)
+        log_step(logger, "query_llm.done", label=result.label,
+                 n_cited=len(result.cited_clauses))
+        return result
 
     # ------------------------------------------------------------------
     # Utility
@@ -189,9 +241,16 @@ class OllamaClient:
 
     def is_reachable(self) -> bool:
         """
-        Return True if the Ollama server responds to a health check.
-        Does NOT raise; always returns bool.
+        Return True if the active provider (per LLM_PROVIDER, see generate())
+        is usable. Does NOT raise; always returns bool.
         """
+        if os.getenv("LLM_PROVIDER", "ollama").strip().lower() == "groq":
+            try:
+                from backend.app.llm.groq_client import groq_client
+                return groq_client.has_keys
+            except Exception:
+                return False
+
         import urllib.request
         import urllib.error
         try:
@@ -251,7 +310,15 @@ def _parse_llm_response(raw: str) -> LLMResult:
             raw_response=raw,
         )
 
-    # Fallback: could not parse JSON
+    # Fallback: could not parse JSON. This silently defaults to NotMentioned
+    # unless logged — log it as a warning with the raw text so a run that
+    # looks like "lots of NotMentioned" can be told apart from "the LLM kept
+    # returning malformed JSON", which look identical in the results table
+    # otherwise.
+    logger.warning(
+        "LLM response was not valid JSON - defaulting to NotMentioned. "
+        "raw_response[:300]=%r", raw[:300],
+    )
     return LLMResult(
         label="NotMentioned",
         reasoning=f"[JSON parse failed] Raw response: {raw[:500]}",

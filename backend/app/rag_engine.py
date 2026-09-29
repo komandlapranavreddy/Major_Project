@@ -1,8 +1,8 @@
 import chromadb
 from chromadb.utils import embedding_functions
-import ollama
 import json
 import os
+from app.llm.groq_client import groq_client
 
 # Initialize ChromaDB in a local directory
 CHROMA_DB_DIR = os.path.join(os.path.dirname(__file__), "..", "chroma_db")
@@ -44,7 +44,7 @@ def store_document_chunks(doc_id: str, chunks: list):
 
 def analyze_hypothesis(doc_id: str, hypothesis: str, top_k: int = 5):
     """
-    Retrieves context for a hypothesis and runs Ollama inference to get structured results.
+    Retrieves context for a hypothesis and runs Groq (or Ollama fallback) inference to get structured results.
     """
     # 1. Retrieve relevant chunks
     results = collection.query(
@@ -78,7 +78,7 @@ def analyze_hypothesis(doc_id: str, hypothesis: str, top_k: int = 5):
             
     context_str = "\n\n".join(context_chunks)
     
-    # 3. Call Ollama
+    # 3. Call LLM (Groq with rotating keys, or fallback to Ollama)
     system_prompt = """
     You are an expert legal AI assistant. Your task is to evaluate a legal hypothesis against the provided contract context.
     
@@ -96,14 +96,25 @@ def analyze_hypothesis(doc_id: str, hypothesis: str, top_k: int = 5):
     """
     
     user_prompt = f"Context from Contract:\n{context_str}\n\nHypothesis: {hypothesis}"
+    messages = [
+        {'role': 'system', 'content': system_prompt},
+        {'role': 'user', 'content': user_prompt}
+    ]
     
     try:
-        response = ollama.chat(model='llama3.1:8b', messages=[
-            {'role': 'system', 'content': system_prompt},
-            {'role': 'user', 'content': user_prompt}
-        ], format='json')
-        
-        response_text = response['message']['content']
+        if groq_client.has_keys:
+            # High-speed Groq inference with key rotation
+            response_text = groq_client.chat(
+                messages=messages,
+                response_format={"type": "json_object"},
+                temperature=0.0
+            )
+        else:
+            # Fallback to local Ollama
+            import ollama
+            response = ollama.chat(model='llama3.1:8b', messages=messages, format='json')
+            response_text = response['message']['content']
+            
         parsed_result = json.loads(response_text)
         
         # 4. Map chunk IDs back to full citation objects
@@ -121,9 +132,10 @@ def analyze_hypothesis(doc_id: str, hypothesis: str, top_k: int = 5):
         }
         
     except Exception as e:
-        print(f"Error during Ollama inference: {e}")
+        print(f"Error during LLM inference: {e}")
         return {
             "label": "NotMentioned",
             "reasoning": f"Error during analysis: {str(e)}",
             "cited_clauses": []
         }
+

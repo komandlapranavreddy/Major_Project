@@ -6,3 +6,13 @@ chromadb
 sentence-transformers
 ollama
 pydantic
+groq
+python-dotenv
+langgraph
+scipy
+scikit-learn
+
+torch  # triage classifier (triage_model/) — was installed but undeclared
+transformers  # DeBERTa-v3 tokenizer + AutoModelForSequenceClassification
+sentencepiece  # required by the DeBERTa-v3 tokenizer
+psutil  # RAM/CPU measurement for Project Guide 6.2 resource metrics

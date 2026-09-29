@@ -50,6 +50,10 @@ REPO_ROOT   = SCRIPT_DIR.parent.parent             # edgelegal/
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
+from backend.app.logging_config import get_logger, log_exception
+
+logger = get_logger(__name__)
+
 from backend.app.parsing.clause_parser import PageBlock, segment_clauses
 from backend.app.embeddings.embedder import Embedder
 from backend.app.vectorstore.chroma_client import (
@@ -371,4 +375,8 @@ def run_retrieval_check() -> None:
 # ─────────────────────────────────────────────────────────────────────────────
 
 if __name__ == "__main__":
-    run_retrieval_check()
+    try:
+        run_retrieval_check()
+    except Exception:
+        log_exception(logger, "retrieval_accuracy_check.py crashed")
+        raise

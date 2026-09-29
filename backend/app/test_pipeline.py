@@ -64,6 +64,10 @@ REPO_ROOT   = SCRIPT_DIR.parent.parent             # edgelegal/
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
+from backend.app.logging_config import get_logger, log_exception
+
+logger = get_logger(__name__)
+
 from backend.app.parsing.clause_parser import PageBlock, segment_clauses
 from backend.app.embeddings.embedder import Embedder
 from backend.app.vectorstore.chroma_client import (
@@ -957,4 +961,10 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except Exception:
+        log_exception(logger, "test_pipeline.py crashed - see traceback above/below "
+                      "and in logs/edgelegal.log for the full pipeline sequence "
+                      "leading up to it")
+        raise

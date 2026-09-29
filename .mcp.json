@@ -1,0 +1,49 @@
+{
+  "mcpServers": {
+    "context7": {
+      "command": "cmd",
+      "args": [
+        "/c",
+        "npx",
+        "-y",
+        "@upstash/context7-mcp"
+      ]
+    },
+    "playwright": {
+      "command": "cmd",
+      "args": [
+        "/c",
+        "npx",
+        "-y",
+        "@playwright/mcp@latest"
+      ]
+    },
+    "chroma": {
+      "command": "cmd",
+      "args": [
+        "/c",
+        "uvx",
+        "chroma-mcp",
+        "--client-type",
+        "persistent",
+        "--data-dir",
+        "C:\\Users\\katta\\OneDrive\\Desktop\\major project\\EdgeLegal_CodeBase\\backend\\chroma_db"
+      ]
+    },
+    "huggingface": {
+      "type": "http",
+      "url": "https://huggingface.co/mcp"
+    },
+    "wandb": {
+      "type": "http",
+      "url": "https://mcp.withwandb.com/mcp",
+      "headers": {
+        "Authorization": "Bearer ${WANDB_API_KEY}"
+      }
+    },
+    "kaggle": {
+      "command": "C:\\Users\\katta\\.local\\bin\\kaggle-mcp.exe",
+      "args": []
+    }
+  }
+}

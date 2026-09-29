@@ -2,9 +2,164 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Typed custom property so the conic-gradient border can be smoothly
+   animated by the browser instead of jumping between values. */
+@property --angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+
 @layer base {
+  :root {
+    --background: 258 40% 98%;
+    --foreground: 260 25% 10%;
+    --card: 0 0% 100%;
+    --card-foreground: 260 25% 10%;
+    --primary: 263 70% 58%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 258 30% 94%;
+    --secondary-foreground: 260 25% 10%;
+    --muted: 258 30% 94%;
+    --muted-foreground: 258 12% 42%;
+    --accent: 258 35% 91%;
+    --accent-foreground: 260 25% 10%;
+    --border: 258 25% 88%;
+    --input: 258 25% 88%;
+    --ring: 263 70% 58%;
+    --brand-from: 263 85% 62%;
+    --brand-via: 280 85% 65%;
+    --brand-to: 189 94% 55%;
+  }
+
+  .dark {
+    color-scheme: dark;
+    --background: 260 38% 5%;
+    --foreground: 240 20% 97%;
+    --card: 258 32% 8%;
+    --card-foreground: 240 20% 97%;
+    --primary: 258 90% 69%;
+    --primary-foreground: 260 38% 5%;
+    --secondary: 258 28% 13%;
+    --secondary-foreground: 240 20% 97%;
+    --muted: 258 28% 13%;
+    --muted-foreground: 258 15% 66%;
+    --accent: 258 30% 16%;
+    --accent-foreground: 240 20% 97%;
+    --border: 258 25% 19%;
+    --input: 258 25% 19%;
+    --ring: 258 90% 69%;
+    --brand-from: 258 90% 69%;
+    --brand-via: 280 85% 68%;
+    --brand-to: 189 94% 58%;
+  }
+
   body {
-    @apply bg-slate-50 text-slate-900;
+    @apply bg-background text-foreground;
+    font-feature-settings: "cv11", "ss01";
+  }
+
+  ::selection {
+    background: hsl(var(--primary) / 0.32);
+  }
+
+  input,
+  textarea {
+    caret-color: hsl(var(--primary));
+  }
+
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: hsl(var(--border)) transparent;
+  }
+
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: hsl(var(--border));
+    border-radius: 9999px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+}
+
+@layer utilities {
+  /* Frosted glass surface, tuned per-theme via bg/border opacity */
+  .glass {
+    @apply bg-white/70 dark:bg-white/[0.04] backdrop-blur-xl border border-black/5 dark:border-white/10;
+  }
+
+  .glass-strong {
+    @apply bg-white/80 dark:bg-white/[0.06] backdrop-blur-2xl border border-black/5 dark:border-white/[0.08];
+  }
+
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .bg-grid {
+    background-image:
+      linear-gradient(to right, hsl(var(--border) / 0.4) 1px, transparent 1px),
+      linear-gradient(to bottom, hsl(var(--border) / 0.4) 1px, transparent 1px);
+    background-size: 44px 44px;
+  }
+
+  .bg-noise {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    opacity: 0.035;
+  }
+
+  .mask-fade-bottom {
+    mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
+  }
+
+  .text-gradient-brand {
+    @apply bg-clip-text text-transparent;
+    background-image: linear-gradient(
+      100deg,
+      hsl(var(--brand-from)),
+      hsl(var(--brand-via)),
+      hsl(var(--brand-to))
+    );
+  }
+
+  .bg-gradient-brand {
+    background-image: linear-gradient(
+      135deg,
+      hsl(var(--brand-from)),
+      hsl(var(--brand-to))
+    );
+  }
+
+  /* Loading placeholder: a soft light band travelling across a muted block. */
+  .skeleton {
+    @apply animate-shimmer rounded-lg;
+    background-image: linear-gradient(
+      90deg,
+      hsl(var(--muted)) 0%,
+      hsl(var(--muted)) 35%,
+      hsl(var(--accent)) 50%,
+      hsl(var(--muted)) 65%,
+      hsl(var(--muted)) 100%
+    );
+    background-size: 200% 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton,
+  .animate-border-spin,
+  .animate-meteor,
+  .animate-float,
+  .animate-scan,
+  .animate-pulse-glow,
+  .animate-marquee {
+    animation: none !important;
   }
 }
 
@@ -16,12 +171,6 @@
 }
 
 .react-pdf__Page {
-  max-width: 100%;
   box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
   margin-bottom: 1rem;
-}
-
-.react-pdf__Page__canvas {
-  max-width: 100%;
-  height: auto !important;
 }
